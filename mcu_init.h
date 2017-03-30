@@ -8,7 +8,7 @@
 #ifndef MCU_INIT_H_
 #define MCU_INIT_H_
 
-void clockInit(void);
+void msp432Init(void);
 void adcInit(void);
 
 #endif /* MCU_INIT_H_ */

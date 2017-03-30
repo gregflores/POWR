@@ -8,8 +8,10 @@
 #include "msp.h"
 #include "driverlib.h"
 
-void clockInit(void)
+void msp432Init(void)
 {
+	MAP_WDT_A_holdTimer();
+    MAP_Interrupt_disableMaster();
     FPU_enableModule();
     FlashCtl_setWaitState(FLASH_BANK0, 2);
     FlashCtl_setWaitState(FLASH_BANK1, 2);
@@ -28,7 +30,7 @@ void adcInit(void)
 {
     /* Configures Pins as ADC input */
 
-    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P5, GPIO_PIN5, GPIO_TERTIARY_MODULE_FUNCTION);//P5.5 - A0
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P5, GPIO_PIN5, GPIO_TERTIARY_MODULE_FUNCTION);//P5.5 - A0 RVS10
     MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P5, GPIO_PIN4, GPIO_TERTIARY_MODULE_FUNCTION);//P5.4 - A1
     MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P5, GPIO_PIN3, GPIO_TERTIARY_MODULE_FUNCTION);//P5.3 - A2
     MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P5, GPIO_PIN2, GPIO_TERTIARY_MODULE_FUNCTION);//P5.2 - A3
@@ -37,8 +39,8 @@ void adcInit(void)
     MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN7, GPIO_TERTIARY_MODULE_FUNCTION);//P4.7 - A6
     MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN6, GPIO_TERTIARY_MODULE_FUNCTION);//P4.6 - A7
     MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN5, GPIO_TERTIARY_MODULE_FUNCTION);//P4.5 - A8
-    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN4, GPIO_TERTIARY_MODULE_FUNCTION);//P4.4 - A9
-    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN3, GPIO_TERTIARY_MODULE_FUNCTION);//P4.3 - A10
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN4, GPIO_TERTIARY_MODULE_FUNCTION);//P4.4 - A9 RVS1
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN3, GPIO_TERTIARY_MODULE_FUNCTION);//P4.3 - A10 FWD1
     MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN2, GPIO_TERTIARY_MODULE_FUNCTION);//P4.2 - A11
     MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN1, GPIO_TERTIARY_MODULE_FUNCTION);//P4.1 - A12
     MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN0, GPIO_TERTIARY_MODULE_FUNCTION);//P4.0 - A13
@@ -47,7 +49,7 @@ void adcInit(void)
     MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P9, GPIO_PIN1, GPIO_TERTIARY_MODULE_FUNCTION);//P9.1 - A16
     MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P9, GPIO_PIN0, GPIO_TERTIARY_MODULE_FUNCTION);//P9.0 - A17
     MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P8, GPIO_PIN7, GPIO_TERTIARY_MODULE_FUNCTION);//P8.7 - A18
-    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P8, GPIO_PIN6, GPIO_TERTIARY_MODULE_FUNCTION);//P8.6 - A19
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P8, GPIO_PIN6, GPIO_TERTIARY_MODULE_FUNCTION);//P8.6 - A19 FWD1
 
     /* Initializing ADC (ADCOSC/1/1) */
     MAP_ADC14_enableModule();
@@ -93,5 +95,4 @@ void adcInit(void)
 
     /* Triggering the start of the sample */
     MAP_ADC14_enableConversion();
-    MAP_ADC14_toggleConversionTrigger();
 }

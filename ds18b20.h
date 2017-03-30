@@ -19,7 +19,7 @@
 
 #define TEMP_DEBUG 1
 
-void DS_tempRead(onewire_t *ow);
+uint16_t DS_tempRead(onewire_t *ow);
 void search(onewire_t *ow, uint8_t *id, int depth, int reset);
 
 #endif /* DS18B20_H_ */

@@ -37,22 +37,32 @@ void lcd_primary(void)
 
 	drawString(4, 210, FONT_MD, "TEMP  Inside:");
 	drawString(116, 210, FONT_MD, "000F");
+
 	drawString(4, 226, FONT_MD, "TEMP Outside:");
 	drawString(116, 226, FONT_MD, "000F");
 
 	drawString(156, 210, FONT_MD, " IP: 255.255.255.255");
 	drawString(156, 226, FONT_MD, "Web: GIRAFTECH.XYZ");
 
-	drawString(28, 34, FONT_MD, "FWD: 000V  RVS: 000V");
-	drawString(28, 50, FONT_MD, "FWD: 000V  RVS: 000V");
-	drawString(28, 66, FONT_MD, "FWD: 000V  RVS: 000V");
-	drawString(28, 82, FONT_MD, "FWD: 000V  RVS: 000V");
-	drawString(28, 98, FONT_MD, "FWD: 000V  RVS: 000V");
-	drawString(28, 114, FONT_MD, "FWD: 000V  RVS: 000V");
-	drawString(28, 130, FONT_MD, "FWD: 000V  RVS: 000V");
-	drawString(28, 146, FONT_MD, "FWD: 000V  RVS: 000V");
-	drawString(28, 162, FONT_MD, "FWD: 000V  RVS: 000V");
-	drawString(28, 178, FONT_MD, "FWD: 000V  RVS: 000V");
+	drawString(28, 34, FONT_MD, "FWD: 000W  RVS: 000W");
+	drawString(28, 50, FONT_MD, "FWD: 000W  RVS: 000W");
+	drawString(28, 66, FONT_MD, "FWD: 000W  RVS: 000W");
+	drawString(28, 82, FONT_MD, "FWD: 000W  RVS: 000W");
+	drawString(28, 98, FONT_MD, "FWD: 000W  RVS: 000W");
+	drawString(28, 114, FONT_MD, "FWD: 000W  RVS: 000W");
+	drawString(28, 130, FONT_MD, "FWD: 000W  RVS: 000W");
+	drawString(28, 146, FONT_MD, "FWD: 000W  RVS: 000W");
+	drawString(28, 162, FONT_MD, "FWD: 000W  RVS: 000W");
+	drawString(28, 178, FONT_MD, "FWD: 000W  RVS: 000W");
 }
 
+void drawTemp(uint16_t a, uint16_t b)
+{
+	int8_t string[] = "";
+	sprintf((char*)string, "%3u", a);
 
+	drawString(116, 210, FONT_MD_BKG, string);
+	sprintf((char*)string, "%3u", b);
+
+	drawString(116, 226, FONT_MD_BKG, string);
+}

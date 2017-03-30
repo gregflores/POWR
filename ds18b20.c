@@ -8,7 +8,7 @@
 
 #include "ds18b20.h"
 
-void DS_tempRead(onewire_t *ow)
+uint16_t DS_tempRead(onewire_t *ow)
 {
     uint8_t scratchpad[9];
     uint16_t sign, temp, temp_c, temp_f, wholeTemp;
@@ -47,6 +47,8 @@ void DS_tempRead(onewire_t *ow)
 #if TEMP_DEBUG
     printf( "\nTempF= %d degrees F\n", temp_f ); // print temp. F
 #endif
+
+    return temp_f;
 }
 
 /***************************************************************/
