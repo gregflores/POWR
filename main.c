@@ -16,12 +16,13 @@
 #include "graphics.h"
 #include <string.h>
 #include "lcd_pages.h"
+#include "math.h"
 
 /* ADC results buffer */
 static uint16_t resultsBuffer[20];
 
 static float normalizedResults[20];
-
+static uint16_t wattsResults[20];
 //static bool lcd_flag = false;
 
 uint8_t state;
@@ -30,19 +31,20 @@ uint8_t timer_count = 0;
 void main(void)
 {
     msp432Init();
-	uint8_t i;
+	//uint8_t i;
 	uint16_t a, b;
     onewire_t ow1, ow2;
     state = 0;
     int8_t string[] = "";
 
-    /* Configuring P1.0 as output and P1.1 (switch) as input */
+    /* Configuring P1.0 as output */
     MAP_GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN0);
 
     /* Configuring P1.1 as an input and enabling interrupts */
     MAP_GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P1, GPIO_PIN1);
     MAP_GPIO_clearInterruptFlag(GPIO_PORT_P1, GPIO_PIN1);
     MAP_GPIO_enableInterrupt(GPIO_PORT_P1, GPIO_PIN1);
+
     MAP_GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P1, GPIO_PIN4);
     MAP_GPIO_clearInterruptFlag(GPIO_PORT_P1, GPIO_PIN4);
     MAP_GPIO_enableInterrupt(GPIO_PORT_P1, GPIO_PIN4);
@@ -74,7 +76,7 @@ void main(void)
 	printf("On Board:");
     a = DS_tempRead(&ow1);
 
-    printf("Wire:");
+    printf("\nWire:");
     b = DS_tempRead(&ow2);
 
     drawTemp(a, b);
@@ -88,10 +90,10 @@ void main(void)
     	switch(state)
     	{
     	case 1:
-        	printf("On Board:");
+        	printf("\nOn Board:");
             a = DS_tempRead(&ow1);
 
-            printf("Wire:");
+            printf("\nWire:");
             b = DS_tempRead(&ow2);
 
             drawTemp(a, b);
@@ -103,20 +105,22 @@ void main(void)
     		break;
     	case 2:
 
+    		//y=0.5657x-0.1766
+    		//wattsResults = ((normalizedResults[n]*4)+0.1766)/0.5657
 			normalizedResults[adc_flag] = (resultsBuffer[adc_flag] * 3.3) / 16384;
 			normalizedResults[adc_flag+10] = (resultsBuffer[adc_flag+10] * 3.3) / 16384;
+			wattsResults[adc_flag] = pow(10,(log10((normalizedResults[adc_flag]*4))+0.1766)/0.5657);
+			wattsResults[adc_flag + 10] = pow(10, (log10((normalizedResults[adc_flag + 10]*4))+0.1766)/0.5657);
 
-			sprintf((char*)string, "%.2fv", normalizedResults[adc_flag+10]);
-			drawString(68, (34+((9-adc_flag)*16)), FONT_MD_BKG, string);
+			sprintf((char*)string, "%3dW", wattsResults[adc_flag]); //%.2f normalizedResults
+			drawString(68, (34+((adc_flag)*16)), FONT_MD_BKG, string);
+
+			sprintf((char*)string, " %3dW", wattsResults[adc_flag+10]);
+			drawString(148, (34+((adc_flag)*16)), FONT_MD_BKG, string);
 
 			setColor(COLOR_16_GREEN);
-			fillCircle(210, 39+((9-adc_flag)*16), 4);
+			fillCircle(210, 39+((adc_flag)*16), 4);
 			setColor(COLOR_16_WHITE);
-
-
-			sprintf((char*)string, " %.2fv", normalizedResults[adc_flag]);
-			drawString(148, (34+((9-adc_flag)*16)), FONT_MD_BKG, string);
-
 
 			state = 0;
     		break;
@@ -159,8 +163,10 @@ void PORT1_IRQHandler(void)
     if(status & GPIO_PIN1)
     {
         MAP_GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN0);
-     	MAP_ADC14_toggleConversionTrigger();
-     	adc_flag = 9;
+     	_delay_cycles(10000);
+        MAP_ADC14_toggleConversionTrigger();
+        _delay_cycles(10000);
+     	adc_flag = 8;
 
     }
     if(status & GPIO_PIN4)

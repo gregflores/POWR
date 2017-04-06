@@ -28,7 +28,7 @@ uint16_t DS_tempRead(onewire_t *ow)
     	scratchpad[i] = onewire_read_byte(ow); //Read the scratchpad bytes
     }
 #if TEMP_DEBUG
-    printf("\nTemp: 0x%x%x\n",scratchpad[1], scratchpad[0]);
+    printf("\nTemp: 0x%x%x",scratchpad[1], scratchpad[0]);
 #endif
     temp_msb = scratchpad[1];
     temp_lsb = scratchpad[0];
