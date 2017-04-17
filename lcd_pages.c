@@ -6,10 +6,6 @@
  */
 
 #include "lcd_pages.h"
-#include "HAL_MSP432_320x240_ILI9341.h"
-#include "color.h"
-#include "graphics.h"
-#include "lcd.h"
 
 void lcd_pageInit(void)
 {
@@ -18,42 +14,32 @@ void lcd_pageInit(void)
 	initLCD();
 	clearScreen(1);
 }
+
 void lcd_primary(void)
 {
 	setColor(COLOR_16_WHITE);
-	drawString(4, 2, FONT_MD, "MEGAHERTZ");
-	drawString(236, 2, FONT_MD, "GIRAF Tech");
+	drawString(COMPANY_NAME_X, COMPANY_NAME_Y, FONT_MD, "MEGAHERTZ");
+	drawString(TEAM_NAME_X, TEAM_NAME_Y, FONT_MD, "GIRAF Tech");
 
-	drawString(4, 34, FONT_MD, " 1");
-	drawString(4, 50, FONT_MD, " 2");
-	drawString(4, 66, FONT_MD, " 3");
-	drawString(4, 82, FONT_MD, " 4");
-	drawString(4, 98, FONT_MD, " 5");
-	drawString(4, 114, FONT_MD, " 6");
-	drawString(4, 130, FONT_MD, " 7");
-	drawString(4, 146, FONT_MD, " 8");
-	drawString(4, 162, FONT_MD, " 9");
-	drawString(4, 178, FONT_MD, "10");
+	drawString(REPEATER_X, REPEATER_Y_1, FONT_MD, " 1 FWD: 000W  RVS: 000W");
+	drawString(REPEATER_X, REPEATER_Y_1, FONT_MD, " 2 FWD: 000W  RVS: 000W");
+	drawString(REPEATER_X, REPEATER_Y_1, FONT_MD, " 3 FWD: 000W  RVS: 000W");
+	drawString(REPEATER_X, REPEATER_Y_1, FONT_MD, " 4 FWD: 000W  RVS: 000W");
+	drawString(REPEATER_X, REPEATER_Y_1, FONT_MD, " 5 FWD: 000W  RVS: 000W");
+	drawString(REPEATER_X, REPEATER_Y_1, FONT_MD, " 6 FWD: 000W  RVS: 000W");
+	drawString(REPEATER_X, REPEATER_Y_1, FONT_MD, " 7 FWD: 000W  RVS: 000W");
+	drawString(REPEATER_X, REPEATER_Y_1, FONT_MD, " 8 FWD: 000W  RVS: 000W");
+	drawString(REPEATER_X, REPEATER_Y_1, FONT_MD, " 9 FWD: 000W  RVS: 000W");
+	drawString(REPEATER_X, REPEATER_Y_1, FONT_MD, "10 FWD: 000W  RVS: 000W");
 
-	drawString(4, 210, FONT_MD, "TEMP  Inside:");
-	drawString(116, 210, FONT_MD, "000F");
+	drawString(TEMP_A_X, TEMP_A_Y, FONT_MD, "TEMP A:");
+	drawString(TEMP_A_VAL_X, TEMP_A_VAL_Y , FONT_MD, "000F");
 
-	drawString(4, 226, FONT_MD, "TEMP Outside:");
-	drawString(116, 226, FONT_MD, "000F");
+	drawString(TEMP_B_X, TEMP_B_Y, FONT_MD, "TEMP B:");
+	drawString(TEMP_B_VAL_X, TEMP_B_VAL_Y, FONT_MD, "000F");
 
-	drawString(156, 210, FONT_MD, " IP: 255.255.255.255");
+	drawString(IP_X, IP_Y, FONT_MD, " IP: 255.255.255.255");
 	drawString(156, 226, FONT_MD, "Web: GIRAFTECH.XYZ");
-
-	drawString(28, 34, FONT_MD, "FWD: 000W  RVS: 000W");
-	drawString(28, 50, FONT_MD, "FWD: 000W  RVS: 000W");
-	drawString(28, 66, FONT_MD, "FWD: 000W  RVS: 000W");
-	drawString(28, 82, FONT_MD, "FWD: 000W  RVS: 000W");
-	drawString(28, 98, FONT_MD, "FWD: 000W  RVS: 000W");
-	drawString(28, 114, FONT_MD, "FWD: 000W  RVS: 000W");
-	drawString(28, 130, FONT_MD, "FWD: 000W  RVS: 000W");
-	drawString(28, 146, FONT_MD, "FWD: 000W  RVS: 000W");
-	drawString(28, 162, FONT_MD, "FWD: 000W  RVS: 000W");
-	drawString(28, 178, FONT_MD, "FWD: 000W  RVS: 000W");
 }
 
 void drawTemp(uint16_t a, uint16_t b)
@@ -61,8 +47,8 @@ void drawTemp(uint16_t a, uint16_t b)
 	int8_t string[] = "";
 	sprintf((char*)string, "%3u", a);
 
-	drawString(116, 210, FONT_MD_BKG, string);
+	drawString(TEMP_A_VAL_X, TEMP_A_VAL_Y, FONT_MD_BKG, string);
 	sprintf((char*)string, "%3u", b);
 
-	drawString(116, 226, FONT_MD_BKG, string);
+	drawString(TEMP_B_VAL_X, TEMP_B_VAL_Y, FONT_MD_BKG, string);
 }

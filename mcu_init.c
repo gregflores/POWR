@@ -12,12 +12,12 @@ void msp432Init(void)
 {
 	MAP_WDT_A_holdTimer();
     MAP_Interrupt_disableMaster();
-    FPU_enableModule();
-    FlashCtl_setWaitState(FLASH_BANK0, 2);
-    FlashCtl_setWaitState(FLASH_BANK1, 2);
-    PCM_setPowerState(PCM_AM_DCDC_VCORE1);
-    CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
-    CS_setDCOFrequency(48000000);
+    MAP_FPU_enableModule();
+    MAP_FlashCtl_setWaitState(FLASH_BANK0, 2);
+    MAP_FlashCtl_setWaitState(FLASH_BANK1, 2);
+    MAP_PCM_setPowerState(PCM_AM_DCDC_VCORE1);
+    MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
+    MAP_CS_setDCOFrequency(48000000);
     MAP_CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
     MAP_CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_2);
     MAP_CS_initClockSignal(CS_HSMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_2);
@@ -86,7 +86,6 @@ void adcInit(void)
 
     /* Enabling Interrupts */
     MAP_Interrupt_enableInterrupt(INT_ADC14);
-    MAP_Interrupt_enableMaster();
 
     /* Setting up the sample timer to automatically step through the sequence
      * convert.
@@ -95,4 +94,16 @@ void adcInit(void)
 
     /* Triggering the start of the sample */
     MAP_ADC14_enableConversion();
+}
+
+void keyInputInit(void)
+{
+    MAP_GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P2, GPIO_PIN6 | GPIO_PIN7);
+    MAP_GPIO_clearInterruptFlag(GPIO_PORT_P2, GPIO_PIN6 | GPIO_PIN7);
+    MAP_GPIO_enableInterrupt(GPIO_PORT_P2, GPIO_PIN6 | GPIO_PIN7);
+
+    MAP_GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P3, GPIO_PIN0 | GPIO_PIN1 | GPIO_PIN2 | GPIO_PIN3 | GPIO_PIN4 | GPIO_PIN5 | GPIO_PIN6 | GPIO_PIN7);
+    MAP_GPIO_clearInterruptFlag(GPIO_PORT_P3, GPIO_PIN0 | GPIO_PIN1 | GPIO_PIN2 | GPIO_PIN3 | GPIO_PIN4 | GPIO_PIN5 | GPIO_PIN6 | GPIO_PIN7);
+    MAP_GPIO_enableInterrupt(GPIO_PORT_P3, GPIO_PIN0 | GPIO_PIN1 | GPIO_PIN2 | GPIO_PIN3 | GPIO_PIN4 | GPIO_PIN5 | GPIO_PIN6 | GPIO_PIN7);
+
 }

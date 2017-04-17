@@ -25,9 +25,9 @@ static float normalizedResults[20];
 static uint16_t wattsResults[20];
 //static bool lcd_flag = false;
 
-uint8_t state;
-uint8_t adc_flag;
-uint8_t timer_count = 0;
+static uint8_t state;
+static uint8_t adc_flag;
+
 void main(void)
 {
     msp432Init();
@@ -37,17 +37,10 @@ void main(void)
     state = 0;
     int8_t string[] = "";
 
-    /* Configuring P1.0 as output */
-    MAP_GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN0);
 
     /* Configuring P1.1 as an input and enabling interrupts */
-    MAP_GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P1, GPIO_PIN1);
-    MAP_GPIO_clearInterruptFlag(GPIO_PORT_P1, GPIO_PIN1);
-    MAP_GPIO_enableInterrupt(GPIO_PORT_P1, GPIO_PIN1);
-
-    MAP_GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P1, GPIO_PIN4);
-    MAP_GPIO_clearInterruptFlag(GPIO_PORT_P1, GPIO_PIN4);
-    MAP_GPIO_enableInterrupt(GPIO_PORT_P1, GPIO_PIN4);
+    keyInputInit();
+    adcInit();
 
     MAP_Timer32_initModule(TIMER32_BASE, TIMER32_PRESCALER_1, TIMER32_32BIT,
             TIMER32_PERIODIC_MODE);
@@ -60,7 +53,7 @@ void main(void)
     lcd_pageInit();
     lcd_primary();
     memset(resultsBuffer, 0x00, 20);
-    adcInit();
+
     ow1.port_out = &P6OUT;
     ow1.port_in = &P6IN;
     ow1.port_ren = &P6REN;
@@ -81,10 +74,10 @@ void main(void)
 
     drawTemp(a, b);
 
-    MAP_Timer32_setCount(TIMER32_BASE,48000000*60);
+    MAP_Timer32_setCount(TIMER32_BASE,48000000);
     MAP_Timer32_enableInterrupt(TIMER32_BASE);
     MAP_Timer32_startTimer(TIMER32_BASE, true);
-
+    MAP_Interrupt_enableMaster();
     while(1)
     {
     	switch(state)
@@ -98,7 +91,7 @@ void main(void)
 
             drawTemp(a, b);
             state = 0;
-            MAP_Timer32_setCount(TIMER32_BASE,48000000*60);
+            MAP_Timer32_setCount(TIMER32_BASE,48000000);
             MAP_Timer32_enableInterrupt(TIMER32_BASE);
             MAP_Timer32_startTimer(TIMER32_BASE, true);
 
@@ -137,6 +130,7 @@ void main(void)
  * grabbed and placed in resultsBuffer */
 void ADC14_IRQHandler(void)
 {
+	MAP_Interrupt_disableMaster();
     uint64_t status;
 
     status = MAP_ADC14_getEnabledInterruptStatus();
@@ -149,42 +143,87 @@ void ADC14_IRQHandler(void)
         MAP_ADC14_getMultiSequenceResult(resultsBuffer);
         state = 2;
     }
+    MAP_Interrupt_enableMaster();
 }
 
 /* GPIO ISR */
-void PORT1_IRQHandler(void)
+void PORT2_IRQHandler(void)
 {
+	MAP_Interrupt_disableMaster();
     uint32_t status;
 
-    status = MAP_GPIO_getEnabledInterruptStatus(GPIO_PORT_P1);
-    MAP_GPIO_clearInterruptFlag(GPIO_PORT_P1, status);
+    status = MAP_GPIO_getEnabledInterruptStatus(GPIO_PORT_P2);
+    MAP_GPIO_clearInterruptFlag(GPIO_PORT_P2, status);
 
-    /* Toggling the output on the LED */
-    if(status & GPIO_PIN1)
+    if(status & GPIO_PIN6)
     {
-        MAP_GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN0);
-     	_delay_cycles(10000);
         MAP_ADC14_toggleConversionTrigger();
         _delay_cycles(10000);
-     	adc_flag = 8;
-
+     	adc_flag = 1;
     }
-    if(status & GPIO_PIN4)
+    else if(status & GPIO_PIN7)
     {
-        state = 1;
+        MAP_ADC14_toggleConversionTrigger();
+        _delay_cycles(10000);
+     	adc_flag = 2;
     }
-
+    MAP_Interrupt_enableMaster();
 }
 
+void PORT3_IRQHandler(void)
+{
+	MAP_Interrupt_disableMaster();
+    uint32_t status;
+
+    status = MAP_GPIO_getEnabledInterruptStatus(GPIO_PORT_P3);
+    MAP_GPIO_clearInterruptFlag(GPIO_PORT_P3, status);
+
+    switch(status)
+    {
+    case GPIO_PIN0:
+     	adc_flag = 3;
+    	break;
+    case GPIO_PIN1:
+     	adc_flag = 4;
+    	break;
+    case GPIO_PIN2:
+     	adc_flag = 5;
+    	break;
+    case GPIO_PIN3:
+     	adc_flag = 6;
+    	break;
+    case GPIO_PIN4:
+     	adc_flag = 7;
+    	break;
+    case GPIO_PIN5:
+     	adc_flag = 8;
+    	break;
+    case GPIO_PIN6:
+     	adc_flag = 9;
+    	break;
+    case GPIO_PIN7:
+     	adc_flag = 10;
+    	break;
+    default:
+    	break;
+    }
+    MAP_ADC14_toggleConversionTrigger();
+    _delay_cycles(10000);
+    MAP_Interrupt_enableMaster();
+}
 
 void T32_INT1_IRQHandler(void)
 {
+	MAP_Interrupt_disableMaster();
+	static uint16_t timer_count = 0;
 	MAP_Timer32_clearInterruptFlag(TIMER32_BASE);
 	timer_count++;
-	if (timer_count == 1)
+
+	if (timer_count == 60)
 	{
 		state = 1;
 		timer_count = 0;
 	}
+	MAP_Interrupt_enableMaster();
 }
 

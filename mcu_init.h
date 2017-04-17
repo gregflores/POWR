@@ -10,5 +10,6 @@
 
 void msp432Init(void);
 void adcInit(void);
+void keyInputInit(void);
 
 #endif /* MCU_INIT_H_ */

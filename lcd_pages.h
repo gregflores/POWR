@@ -15,6 +15,9 @@
 #include <stdint.h>
 #include <string.h>
 #include "lcd_pages.h"
+#include "lcd.h"
+#include "lcd_layout.h"
+#include "HAL_MSP432_320x240_ILI9341.h"
 
 void lcd_pageInit(void);
 void lcd_primary(void);

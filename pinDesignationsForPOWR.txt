@@ -1,0 +1,98 @@
+MSP432 Port and Pin assignments
+Port 1
+	Pin 0	LCD CS
+	Pin 1	LCD CLK
+	Pin 2	LCD LITE
+	Pin 3	LCD MOSI
+	Pin 4	
+	Pin 5	LCD IRQ
+	Pin 6	LCD SDA
+	Pin 7	LCD SCL
+Port 2
+	Pin 0	
+	Pin 1
+	Pin 2
+	Pin 3
+	Pin 4
+	Pin 5
+	Pin 6	KI 1
+	Pin 7	KI 2
+Port 3
+	Pin 0	KI 3
+	Pin 1	KI 4
+	Pin 2	KI 5
+	Pin 3	KI 6
+	Pin 4	KI 7
+	Pin 5	KI 8
+	Pin 6	KI 9
+	Pin 7	KI 10
+Port 4
+	Pin 0	FWD 7
+	Pin 1	FWD 8
+	Pin 2	FWD 9
+	Pin 3	FWD 10
+	Pin 4	RVS 1
+	Pin 5	RVS 2
+	Pin 6	RVS 3
+	Pin 7	RVS 4
+Port 5
+	Pin 0	RVS 5
+	Pin 1	RVS 6
+	Pin 2 	RVS 7
+	Pin 3	RVS 8
+	Pin 4	RVS 9
+	Pin 5	RVS 10
+	Pin 6
+	Pin 7
+Port 6
+	Pin 0	FWD 5
+	Pin 1	FWD 6
+	Pin 2	TEMP A
+	Pin 3	TEMP B
+	Pin 4
+	Pin 5
+	Pin 6
+	Pin 7	W500 INTn
+Port 7
+	Pin 0
+	Pin 1
+	Pin 2
+	Pin 3
+	Pin 4
+	Pin 5
+	Pin 6	CONTACT A
+	Pin 7	CONTACT B
+Port 8
+	Pin 0
+	Pin 1
+	Pin 2
+	Pin 3
+	Pin 4
+	Pin 5
+	Pin 6	FWD 1
+	Pin 7	FWD 2
+Port 9
+	Pin 0	FWD 3
+	Pin 1	FWD 4
+	Pin 2
+	Pin 3
+	Pin 4	W5500 CS
+	Pin 5	W5500 CLK
+	Pin 6	W5500 MISO
+	Pin 7	W5500 MOSI
+Port 10
+	Pin 0
+	Pin 1
+	Pin 2
+	Pin 3	LCD DC
+	Pin 4
+	Pin 5
+	Pin 6
+	Pin 7
+
+
+SPI assignments
+ETHERNET CONTROLLER
+	EUSCI A3
+LCD
+	EUSCI A0
