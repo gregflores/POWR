@@ -2,6 +2,7 @@
 #define _MSP430SERVER_H_
 //
 #include "typedefs.h"
+#include <stdint.h>
 //
 void configureW5500(const u_char *sourceIP, const u_char *gatewayIP, const u_char *subnetMask);
 void W5500_SpiInit();
@@ -18,7 +19,7 @@ void startServer(u_char s, u_char port);
 void stopServer(u_char s);
 //
 void flushBuffer();
-void sendRequest();
+void sendTempRequest(uint16_t a, uint16_t b);
 //
 void addHTTP400ResponseToBuffer();
 void addHTTP200ResponseToBuffer();

@@ -8,17 +8,19 @@
 #ifndef CLIENTSERVERMODE_H_
 #define CLIENTSERVERMODE_H_
 
+#include "msp.h"
+#include "driverlib.h"
+#include "typedefs.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdio.h>
+#include "w5500.h"
+#include "msp432server.h"
+
 void runAsServer();
-void runAsClient();
+void runAsClient(uint8_t, uint16_t, uint16_t);
 // used for client example
 void waitForEvent();
-//
-// network configuration
-const u_char sourceIP[4] = { 192, 168, 1, 10 }; // local IP
-const u_char gatewayIP[4] = { 192, 168, 1, 1 }; // gateway IP
-const u_char subnetMask[4] = { 255, 255, 255, 0 }; // subnet mask
-// network configuration for client mode
-const u_char destinationIP[4] = { 192, 168, 1, 148 }; // destination IP
-const u_int destinationPort = 23; // destination port
+
 
 #endif /* CLIENTSERVERMODE_H_ */

@@ -222,40 +222,40 @@ u_char parseRequest(Request *request) {
 ///////////////////////////////////////////
 //
 ///////////////////////////////////////////
-void sendRequest() {
-//	addStringToBuffer(sREQUEST_GET);
-//	addStringToBuffer((const u_char*) "/mypage?button=");
-//	char someCondition = 0;
-//	if (someCondition) {
-//		addStringToBuffer((const u_char*) "ON");
-//	} else {
-//		addStringToBuffer((const u_char*) "OFF");
-//	}
-//	addStringToBuffer(sREQUEST_HTTP);
-//	addStringToBuffer(sNEW_LINE);
-//	addStringToBuffer(sNEW_LINE);
+void sendTempRequest(uint16_t a, uint16_t b) {
+
+	int8_t string[] = "";
+	sprintf((char*)string, "%3u", a);
+	addStringToBuffer("Temp A: ");
+	addStringToBuffer((const u_char *)string);
+	addStringToBuffer(sNEW_LINE);
+	sprintf((char*)string, "%3u", b);
+	addStringToBuffer("Temp B: ");
+	addStringToBuffer((const u_char *)string);
+	addStringToBuffer(sNEW_LINE);
+
 //	flushBuffer();
-	u_char success = '1';
-	openDocument();
-	u_char u = 0;
-	while (u < 1) {
-		u_char c = 0;
-		addStringToBuffer(sUNIVERSE_OPEN);
-		addCharToBufferAsHex(u);
-		addStringToBuffer(sCLOSE_TAG);
-		while (c < 32) {
-			addStringToBuffer(sCHANNEL_OPEN);
-			addCharToBufferAsHex(c);
-			addStringToBuffer(sCLOSE_TAG);
-			//addStringToBuffer("Ian is the fucking worst");
-			addCharToBufferAsHex(c);
-			addStringToBuffer(sCHANNEL_CLOSE);
-			c++;
-		}
-		addStringToBuffer(sUNIVERSE_CLOSE);
-		u++;
-	}
-	closeDocument(success);
+//	u_char success = '1';
+//	openDocument();
+//	u_char u = 0;
+//	while (u < 1) {
+//		u_char c = 0;
+//		addStringToBuffer(sUNIVERSE_OPEN);
+//		addCharToBufferAsHex(u);
+//		addStringToBuffer(sCLOSE_TAG);
+//		while (c < 32) {
+//			addStringToBuffer(sCHANNEL_OPEN);
+//			addCharToBufferAsHex(c);
+//			addStringToBuffer(sCLOSE_TAG);
+//			//addStringToBuffer("Ian is the fucking worst");
+//			addCharToBufferAsHex(c);
+//			addStringToBuffer(sCHANNEL_CLOSE);
+//			c++;
+//		}
+//		addStringToBuffer(sUNIVERSE_CLOSE);
+//		u++;
+//	}
+//	closeDocument(success);
 	flushBuffer();
 
 
@@ -316,7 +316,7 @@ void W5500_SpiInit() {
 		SPI_initMaster(ETH_EUSCI_MODULE, &spiMasterConfig);
 	    SPI_enableModule(ETH_EUSCI_MODULE);
 
-	    SPI_enableInterrupt(ETH_EUSCI_MODULE, ETH_EUSCI_REC_INT);
+	    //SPI_enableInterrupt(ETH_EUSCI_MODULE, ETH_EUSCI_REC_INT);
 	    Interrupt_enableInterrupt(ETH_INT_ENABLE);
 	    SPI_clearInterruptFlag(ETH_EUSCI_MODULE,  ETH_EUSCI_REC_INT);
 }

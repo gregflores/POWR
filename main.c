@@ -42,21 +42,28 @@ static uint16_t wattsResults[20];
 static uint8_t state;
 static uint8_t adc_flag;
 
+//
+// network configuration
+const u_char sourceIP[4] = { 192, 168, 1, 10 }; // local IP
+const u_char gatewayIP[4] = { 192, 168, 1, 1 }; // gateway IP
+const u_char subnetMask[4] = { 255, 255, 255, 0 }; // subnet mask
+// network configuration for client mode
+const u_char destinationIP[4] = { 192, 168, 1, 148 }; // destination IP
+const u_int destinationPort = 23; // destination port
+
 void main(void)
 {
     msp432Init();
     W5500_SpiInit();
-	configureW5500(sourceIP, gatewayIP, subnetMask);
-	//uint8_t i;
+
+
+    keyInputInit();
+    adcInit();
+    //uint8_t i;
 	uint16_t a, b;
     onewire_t ow1, ow2;
     state = 0;
     int8_t string[] = "";
-
-
-    /* Configuring P1.1 as an input and enabling interrupts */
-    keyInputInit();
-    adcInit();
 
     MAP_Timer32_initModule(TIMER32_BASE, TIMER32_PRESCALER_1, TIMER32_32BIT,
             TIMER32_PERIODIC_MODE);
@@ -83,17 +90,19 @@ void main(void)
     ow2.pin = BIT3;
 
 	printf("Temp A:");
-    a = DS_tempRead(&ow1);
+   // a = DS_tempRead(&ow1);
 
     printf("\nTemp B:");
-    b = DS_tempRead(&ow2);
+    //b = DS_tempRead(&ow2);
 
     //drawTemp(a, b);
 
+
+    MAP_Interrupt_enableMaster();
+	configureW5500(sourceIP, gatewayIP, subnetMask);
     MAP_Timer32_setCount(TIMER32_BASE,48000000);
     MAP_Timer32_enableInterrupt(TIMER32_BASE);
     MAP_Timer32_startTimer(TIMER32_BASE, true);
-    MAP_Interrupt_enableMaster();
     while(1)
     {
     	switch(state)
@@ -106,6 +115,7 @@ void main(void)
             b = DS_tempRead(&ow2);
 
             //drawTemp(a, b);
+            runAsClient(state, a, b);
             state = 0;
             MAP_Timer32_setCount(TIMER32_BASE,48000000);
             MAP_Timer32_enableInterrupt(TIMER32_BASE);
@@ -235,7 +245,7 @@ void T32_INT1_IRQHandler(void)
 	MAP_Timer32_clearInterruptFlag(TIMER32_BASE);
 	timer_count++;
 
-	if (timer_count == 60)
+	if (timer_count == 20)
 	{
 		state = 1;
 		timer_count = 0;
