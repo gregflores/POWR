@@ -4,26 +4,40 @@
 //
 //****************************************************************************
 
+
 #include "msp.h"
 
+/* Standard Libraries */
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
+
+/* TI Libraries */
+#include "math.h"
 #include "driverlib.h"
+
+/* DS18B20 Libraries */
 #include "onewire.h"
 #include "ds18b20.h"
-#include "mcu_init.h"
+
+/* LCD Libraries */
 #include "color.h"
 #include "graphics.h"
-#include <string.h>
 #include "lcd_pages.h"
-#include "math.h"
+
+/* W5500 Libraries */
+#include "w5500.h"
+#include "msp432server.h"
+#include "wizdebug.h"
+#include "clientServerMode.h"
+
+/* User Libraries */
+#include "mcu_init.h"
 
 /* ADC results buffer */
 static uint16_t resultsBuffer[20];
-
 static float normalizedResults[20];
 static uint16_t wattsResults[20];
-//static bool lcd_flag = false;
 
 static uint8_t state;
 static uint8_t adc_flag;
@@ -31,6 +45,8 @@ static uint8_t adc_flag;
 void main(void)
 {
     msp432Init();
+    W5500_SpiInit();
+	configureW5500(sourceIP, gatewayIP, subnetMask);
 	//uint8_t i;
 	uint16_t a, b;
     onewire_t ow1, ow2;
@@ -50,29 +66,29 @@ void main(void)
     /* Enabling SRAM Bank Retention */
     MAP_SysCtl_enableSRAMBankRetention(SYSCTL_SRAM_BANK1);
 
-    lcd_pageInit();
-    lcd_primary();
+    //lcd_pageInit();
+    //lcd_primary();
     memset(resultsBuffer, 0x00, 20);
 
     ow1.port_out = &P6OUT;
     ow1.port_in = &P6IN;
     ow1.port_ren = &P6REN;
     ow1.port_dir = &P6DIR;
-    ow1.pin = BIT4;
+    ow1.pin = BIT2;
 
     ow2.port_out = &P6OUT;
     ow2.port_in = &P6IN;
     ow2.port_ren = &P6REN;
     ow2.port_dir = &P6DIR;
-    ow2.pin = BIT5;
+    ow2.pin = BIT3;
 
-	printf("On Board:");
+	printf("Temp A:");
     a = DS_tempRead(&ow1);
 
-    printf("\nWire:");
+    printf("\nTemp B:");
     b = DS_tempRead(&ow2);
 
-    drawTemp(a, b);
+    //drawTemp(a, b);
 
     MAP_Timer32_setCount(TIMER32_BASE,48000000);
     MAP_Timer32_enableInterrupt(TIMER32_BASE);
@@ -83,13 +99,13 @@ void main(void)
     	switch(state)
     	{
     	case 1:
-        	printf("\nOn Board:");
+        	printf("\nTemp A:");
             a = DS_tempRead(&ow1);
 
-            printf("\nWire:");
+            printf("\nTemp B:");
             b = DS_tempRead(&ow2);
 
-            drawTemp(a, b);
+            //drawTemp(a, b);
             state = 0;
             MAP_Timer32_setCount(TIMER32_BASE,48000000);
             MAP_Timer32_enableInterrupt(TIMER32_BASE);
@@ -106,14 +122,14 @@ void main(void)
 			wattsResults[adc_flag + 10] = pow(10, (log10((normalizedResults[adc_flag + 10]*4))+0.1766)/0.5657);
 
 			sprintf((char*)string, "%3dW", wattsResults[adc_flag]); //%.2f normalizedResults
-			drawString(68, (34+((adc_flag)*16)), FONT_MD_BKG, string);
+			//drawString(68, (34+((adc_flag)*16)), FONT_MD_BKG, string);
 
 			sprintf((char*)string, " %3dW", wattsResults[adc_flag+10]);
-			drawString(148, (34+((adc_flag)*16)), FONT_MD_BKG, string);
+			//drawString(148, (34+((adc_flag)*16)), FONT_MD_BKG, string);
 
-			setColor(COLOR_16_GREEN);
-			fillCircle(210, 39+((adc_flag)*16), 4);
-			setColor(COLOR_16_WHITE);
+			//setColor(COLOR_16_GREEN);
+			//fillCircle(210, 39+((adc_flag)*16), 4);
+			//setColor(COLOR_16_WHITE);
 
 			state = 0;
     		break;
@@ -224,6 +240,7 @@ void T32_INT1_IRQHandler(void)
 		state = 1;
 		timer_count = 0;
 	}
+	else MAP_Timer32_setCount(TIMER32_BASE,48000000);
 	MAP_Interrupt_enableMaster();
 }
 

@@ -11,9 +11,10 @@
 uint16_t DS_tempRead(onewire_t *ow)
 {
     uint8_t scratchpad[9];
-    uint16_t sign, temp, temp_c, temp_f, wholeTemp;
+    uint16_t temp_f;
     uint8_t temp_lsb,temp_msb, i;
-
+    float wholeTemp;
+    int16_t temp;
     onewire_reset(ow);
     onewire_write_byte(ow, 0xcc); // skip ROM command
     onewire_write_byte(ow, 0x44); // convert T command
@@ -33,17 +34,13 @@ uint16_t DS_tempRead(onewire_t *ow)
     temp_msb = scratchpad[1];
     temp_lsb = scratchpad[0];
     temp = (temp_msb << 8) + temp_lsb; //Create one 16bit number to modify
-    sign = temp & 0xF800; //sign is 0b11111000,00000000
-    if (sign == 0xF800)
-    {
-    	temp = (~temp)+1; //2s complement !!UNTESTED
-    }
-    wholeTemp = (6 * temp) + (temp / 4); //Multiply by 6.25
-    temp_c = wholeTemp/100; //Take only the whole number
+
+    wholeTemp = (float)temp/16.0;
+
 #if TEMP_DEBUG
-    printf( "\nTempC= %d degrees C", temp_c); // print temp. C
+    printf( "\nTempC= %f degrees C", wholeTemp); // print temp. C
 #endif
-    temp_f = ((temp_c)* 9)/5 + 32;
+    temp_f = ((wholeTemp)* 9)/5 + 32;
 #if TEMP_DEBUG
     printf( "\nTempF= %d degrees F\n", temp_f ); // print temp. F
 #endif
