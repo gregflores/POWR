@@ -34,20 +34,38 @@
 /* User Libraries */
 #include "mcu_init.h"
 
+/* defines */
+#define TEMP_READ   1
+#define ADC_READ    2
+#define SEND_DATA   3
+#define DEFAULT     0
+
+#define INPUT_ON    0
+#define INPUT_OFF   1
+
 /* ADC results buffer */
 static uint16_t resultsBuffer[20];
 static float normalizedResults[20];
 uint16_t wattsResults[20];
+
+/* Status flag for the input contact */
 uint8_t inputStatus = 1;
-static uint8_t state;
+
+/* state flag  */
+static uint8_t state = DEFAULT;
+
+/* which adc to check */
 static uint8_t adc_flag;
- uint16_t a, b;
-//
-// network configuration
+
+/* temp variables for the temperature sensors */
+uint16_t a, b;
+
+/* network configuration */
 const u_char sourceIP[4] = { 192, 168, 1, 10 }; // local IP
 const u_char gatewayIP[4] = { 192, 168, 1, 1 }; // gateway IP
 const u_char subnetMask[4] = { 255, 255, 255, 0 }; // subnet mask
-// network configuration for client mode
+
+/* network configuration for client mode */
 const u_char destinationIP[4] = { 192, 168, 1, 2 }; // destination IP
 const u_int destinationPort = 23; // destination port
 
@@ -60,11 +78,8 @@ void main(void)
     lcd_pageInit();
     lcd_primary();
 
-
-
-
     onewire_t ow1, ow2;
-    state = 0;
+    //state = 0;
     int8_t string[] = "";
 
     memset(resultsBuffer, 0x00, 20);
@@ -80,15 +95,10 @@ void main(void)
     ow2.port_ren = &P6REN;
     ow2.port_dir = &P6DIR;
     ow2.pin = BIT3;
+    
+    configureW5500(sourceIP, gatewayIP, subnetMask);
 
     MAP_Interrupt_enableMaster();
-
-	configureW5500(sourceIP, gatewayIP, subnetMask);
-
-
-    MAP_GPIO_setAsOutputPin(OUT_CONTACT_PORT, OUT_CONTACT_PIN);
-    MAP_GPIO_setAsInputPin(IN_CONTACT_PORT, IN_CONTACT_PIN);
-
 
     MAP_Interrupt_enableInterrupt(INT_T32_INT1);
     MAP_Interrupt_enableInterrupt(INT_PORT3);
@@ -100,7 +110,7 @@ void main(void)
     {
     	switch(state)
     	{
-    	case 1:
+    	case TEMP_READ:
     		MAP_Interrupt_disableMaster();
         	printf("\nTemp A:");
             a = DS_tempRead(&ow1);
@@ -110,13 +120,13 @@ void main(void)
 
             drawTemp(a, b);
 
-            state = 0;
+            state = DEFAULT;
             MAP_Timer32_setCount(TIMER32_BASE,48000000);
             MAP_Timer32_enableInterrupt(TIMER32_BASE);
             MAP_Timer32_startTimer(TIMER32_BASE, true);
             MAP_Interrupt_enableMaster();
     		break;
-    	case 2:
+    	case ADC_READ:
     		MAP_Interrupt_disableMaster();
     		//y=0.5657x-0.1766
 
@@ -135,14 +145,14 @@ void main(void)
 			fillCircle(210, 39+((adc_flag)*16), 4);
 			setColor(COLOR_16_WHITE);
 
-			state = 0;
+			state = DEFAULT;
 		    MAP_Interrupt_enableMaster();
     		break;
-    	case 3:
+    	case SEND_DATA:
 
     		runAsClient();
 
-    		state = 0;
+    		state = DEFAULT;
             MAP_Timer32_setCount(TIMER32_BASE,48000000);
             MAP_Timer32_enableInterrupt(TIMER32_BASE);
             MAP_Timer32_startTimer(TIMER32_BASE, true);
@@ -151,12 +161,12 @@ void main(void)
     		{
     			inputStatus ^= 1;
     			switch(inputStatus){
-    			case 0:
+    			case INPUT_ON:
     				setColor(COLOR_16_GREEN);
     				fillCircle(IN_DOT_X, IN_DOT_Y, 8);
     				setColor(COLOR_16_WHITE);
     				break;
-    			case 1:
+    			case INPUT_OFF:
     				setColor(COLOR_16_RED);
     				fillCircle(IN_DOT_X, IN_DOT_Y, 8);
     				setColor(COLOR_16_WHITE);
@@ -188,7 +198,7 @@ void ADC14_IRQHandler(void)
     {
         /* Store ADC14 conversion results */
         MAP_ADC14_getMultiSequenceResult(resultsBuffer);
-        state = 2;
+        state = ADC_READ;
     }
     MAP_Interrupt_enableMaster();
 }
@@ -240,12 +250,12 @@ void T32_INT1_IRQHandler(void)
 	client_count++;
 	if (temp_count == 60)
 	{
-		state = 1;
+		state = TEMP_READ;
 		temp_count = 0;
 	}
 	if (client_count == 16)
 	{
-		state = 3;
+		state = SEND_DATA;
 		client_count = 0;
 	}
 	else MAP_Timer32_setCount(TIMER32_BASE,48000000);
