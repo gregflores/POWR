@@ -224,6 +224,7 @@ u_char parseRequest(Request *request) {
 ///////////////////////////////////////////
 extern uint16_t wattsResults[20];
 extern uint16_t a, b;
+extern uint8_t inputStatus;
 void sendRequest() {
 	int8_t string[] = "";
 	addStringToBuffer("HTTP/1.1 200 OK");
@@ -240,7 +241,10 @@ void sendRequest() {
 	sprintf((char*)string, "%u", DEVICEID);
 	addStringToBuffer((const u_char*)string);
 	addStringToBuffer("\"");
-	addStringToBuffer(",\"inputContact\":\"ON\",\"outputContact\":\"ON\",");
+
+	if(inputStatus) addStringToBuffer(",\"inputContact\":\"OFF\",\"outputContact\":\"ON\",");
+	else addStringToBuffer(",\"inputContact\":\"ON\",\"outputContact\":\"ON\",");
+
 	addStringToBuffer("\"Temp A\":\"");
 	sprintf((char*)string, "%3u", a);
 	addStringToBuffer((const u_char*)string);

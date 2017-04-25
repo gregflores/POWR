@@ -40,6 +40,16 @@ void lcd_primary()
 
     drawString(IP_X,IP_Y, FONT_MD, " IP:");
 	drawString(156, 226, FONT_MD, "Web: GIRAFTECH.XYZ");
+
+	drawString(IN_X, IN_Y, FONT_LG, "IN:");
+	setColor(COLOR_16_RED);
+	fillCircle(IN_DOT_X, IN_DOT_Y, 8);
+	setColor(COLOR_16_WHITE);
+
+	drawString(OUT_X, OUT_Y, FONT_LG, "OUT:");
+	setColor(COLOR_16_RED);
+	fillCircle(OUT_DOT_X, OUT_DOT_Y, 8);
+	setColor(COLOR_16_WHITE);
 }
 
 void drawTemp(uint16_t a, uint16_t b)

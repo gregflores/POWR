@@ -68,4 +68,14 @@
 #define IP_VAL_X 		196
 #define IP_VAL_Y 		210
 
+#define IN_X			252
+#define IN_Y			50
+#define IN_DOT_X		292
+#define IN_DOT_Y		57
+
+#define OUT_X			241
+#define OUT_Y			90
+#define OUT_DOT_X		292
+#define OUT_DOT_Y		97
+
 #endif /* LCD_LAYOUT_H_ */

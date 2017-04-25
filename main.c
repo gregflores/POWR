@@ -38,7 +38,7 @@
 static uint16_t resultsBuffer[20];
 static float normalizedResults[20];
 uint16_t wattsResults[20];
-
+uint8_t inputStatus = 1;
 static uint8_t state;
 static uint8_t adc_flag;
  uint16_t a, b;
@@ -86,9 +86,8 @@ void main(void)
 	configureW5500(sourceIP, gatewayIP, subnetMask);
 
 
-    MAP_GPIO_setAsOutputPin(GPIO_PORT_P7,
-    	                        GPIO_PIN6);
-
+    MAP_GPIO_setAsOutputPin(OUT_CONTACT_PORT, OUT_CONTACT_PIN);
+    MAP_GPIO_setAsInputPin(IN_CONTACT_PORT, IN_CONTACT_PIN);
 
 
     MAP_Interrupt_enableInterrupt(INT_T32_INT1);
@@ -120,7 +119,7 @@ void main(void)
     	case 2:
     		MAP_Interrupt_disableMaster();
     		//y=0.5657x-0.1766
-    		//wattsResults = ((normalizedResults[n]*4)+0.1766)/0.5657
+
 			normalizedResults[adc_flag] = (resultsBuffer[adc_flag] * 3.3) / 16384;
 			normalizedResults[adc_flag+10] = (resultsBuffer[adc_flag+10] * 3.3) / 16384;
 			wattsResults[adc_flag] = pow(10,(log10((normalizedResults[adc_flag]*4))+0.1766)/0.5657);
@@ -148,6 +147,24 @@ void main(void)
             MAP_Timer32_enableInterrupt(TIMER32_BASE);
             MAP_Timer32_startTimer(TIMER32_BASE, true);
     	default:
+    		if(MAP_GPIO_getInputPinValue(IN_CONTACT_PORT, IN_CONTACT_PIN) != inputStatus)
+    		{
+    			inputStatus ^= 1;
+    			switch(inputStatus){
+    			case 0:
+    				setColor(COLOR_16_GREEN);
+    				fillCircle(IN_DOT_X, IN_DOT_Y, 8);
+    				setColor(COLOR_16_WHITE);
+    				break;
+    			case 1:
+    				setColor(COLOR_16_RED);
+    				fillCircle(IN_DOT_X, IN_DOT_Y, 8);
+    				setColor(COLOR_16_WHITE);
+    				break;
+    			default:
+    				break;
+    			}
+    		}
     		break;
     	}
     }
