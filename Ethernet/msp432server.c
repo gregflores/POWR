@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #define _delay_cycles(x) __delay_cycles(x)
-
+#define DEVICEID 1
 ///////////////////////////////////////////////////////////////
 // W5200 network configuration
 ///////////////////////////////////////////////////////////////
@@ -222,40 +222,58 @@ u_char parseRequest(Request *request) {
 ///////////////////////////////////////////
 //
 ///////////////////////////////////////////
-void sendTempRequest(uint16_t a, uint16_t b) {
-
+extern uint16_t wattsResults[20];
+extern uint16_t a, b;
+void sendRequest() {
 	int8_t string[] = "";
-	sprintf((char*)string, "%3u", a);
-	addStringToBuffer("Temp A: ");
-	addStringToBuffer((const u_char *)string);
+	addStringToBuffer("HTTP/1.1 200 OK");
 	addStringToBuffer(sNEW_LINE);
-	sprintf((char*)string, "%3u", b);
-	addStringToBuffer("Temp B: ");
-	addStringToBuffer((const u_char *)string);
+	addStringToBuffer("Content-Type: application/json;charset=ut-8");
+	addStringToBuffer(sNEW_LINE);
+	addStringToBuffer("Server: POWR");
+	addStringToBuffer(sNEW_LINE);
+	addStringToBuffer("Connection: close");
+	addStringToBuffer(sNEW_LINE);
 	addStringToBuffer(sNEW_LINE);
 
-//	flushBuffer();
-//	u_char success = '1';
-//	openDocument();
-//	u_char u = 0;
-//	while (u < 1) {
-//		u_char c = 0;
-//		addStringToBuffer(sUNIVERSE_OPEN);
-//		addCharToBufferAsHex(u);
-//		addStringToBuffer(sCLOSE_TAG);
-//		while (c < 32) {
-//			addStringToBuffer(sCHANNEL_OPEN);
-//			addCharToBufferAsHex(c);
-//			addStringToBuffer(sCLOSE_TAG);
-//			//addStringToBuffer("Ian is the fucking worst");
-//			addCharToBufferAsHex(c);
-//			addStringToBuffer(sCHANNEL_CLOSE);
-//			c++;
-//		}
-//		addStringToBuffer(sUNIVERSE_CLOSE);
-//		u++;
-//	}
-//	closeDocument(success);
+	addStringToBuffer("[{\"deviceId\":\"");
+	sprintf((char*)string, "%u", DEVICEID);
+	addStringToBuffer((const u_char*)string);
+	addStringToBuffer("\"");
+	addStringToBuffer(",\"inputContact\":\"ON\",\"outputContact\":\"ON\",");
+	addStringToBuffer("\"Temp A\":\"");
+	sprintf((char*)string, "%3u", a);
+	addStringToBuffer((const u_char*)string);
+	addStringToBuffer("\",");
+	addStringToBuffer("\"Temp B\":\"");
+	sprintf((char*)string, "%3u", b);
+	addStringToBuffer((const u_char*)string);
+	addStringToBuffer("\",");
+		addStringToBuffer("\"powerArray\":[");
+	uint8_t i = 0;
+	for (i = 0; i < 10; i++)
+	{
+		addStringToBuffer("{\"repeater\":\"");
+		sprintf((char*)string, "%u", i+1);
+		addStringToBuffer((const u_char *)string);
+		addStringToBuffer("\",");
+		addStringToBuffer("\"FWD\":\"");
+		sprintf((char*)string, "%3d", wattsResults[i]);
+		addStringToBuffer((const u_char *)string);
+		addStringToBuffer("\",");
+		addStringToBuffer("\"RVS\":\"");
+		sprintf((char*)string, "%3d", wattsResults[i+10]);
+		addStringToBuffer((const u_char *)string);
+		addStringToBuffer("\"}");
+		if(i < 9) addStringToBuffer(",");
+	}
+
+
+
+	addStringToBuffer("]}]");
+	addStringToBuffer(sNEW_LINE);
+	addStringToBuffer(sNEW_LINE);
+
 	flushBuffer();
 
 
@@ -329,9 +347,13 @@ void startClient(u_char s, u_char *destinationIP, u_char port) {
 	// connect
 	connect(s, destinationIP, port);
 	// verify connection was established
-	// TODO add timer/counter to prevent endless loop when connection cannot be established
-	while (!isConnected(s))
-		;
+	//TODO add timer/counter to prevent endless loop when connection cannot be established
+//	isConnected(s);
+	uint32_t i = 0;
+	while(!isConnected(s) && i < 3000)
+		i++;
+	printf("%i\n", i);
+	fflush(stdout);
 }
 
 void stopClient(u_char s) {

@@ -9,7 +9,7 @@
 //
 //#define RESPONSE_TYPE_HTML
 //
-#define TX_MAX_BUF_SIZE			0x0F // we can go up to 256, but we would have to decrease RX down to 64, 256/64 (G2553 chip)
+#define TX_MAX_BUF_SIZE			0xFF // we can go up to 256, but we would have to decrease RX down to 64, 256/64 (G2553 chip)
 #define RX_MAX_BUF_SIZE			0x0F //
 //
 /* Ethernet controller pin and SPI definitions */

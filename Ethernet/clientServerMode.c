@@ -33,7 +33,7 @@ void runAsServer() {
 extern const u_char destinationIP[4]; // destination IP
 extern const u_int destinationPort; // destination port
 
-void runAsClient(uint8_t state, uint16_t a, uint16_t b) {
+void runAsClient() {
 
 	//while (1) {
 		//
@@ -42,7 +42,7 @@ void runAsClient(uint8_t state, uint16_t a, uint16_t b) {
 		startClient(0, (u_char *) destinationIP, (u_char) destinationPort);
 
 		// send request
-		if(state == 1) sendTempRequest(a,b);
+		sendRequest();
 		// wait for response
 		//waitForData(0);
 		// we've got data, process it

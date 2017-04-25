@@ -22,7 +22,7 @@ void HAL_LCD_SpiInit()
     MAP_GPIO_setAsOutputPin(LCD_CS_PORT,
                         LCD_CS_PIN);
 
-    MAP_GPIO_setOutputLowOnPin(LCD_CS_PORT,
+    MAP_GPIO_setOutputHighOnPin(LCD_CS_PORT,
                            LCD_CS_PIN);
 
     MAP_GPIO_setAsOutputPin(LCD_LITE_PORT,
@@ -33,14 +33,7 @@ void HAL_LCD_SpiInit()
     //
     // Configure SPI peripheral.
     //
-	MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(LCD_MOSI_PORT,
-                                                LCD_MOSI_PIN,
-                                                GPIO_PRIMARY_MODULE_FUNCTION);
 
-
-	MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(LCD_SCLK_PORT,
-    											LCD_SCLK_PIN,
-												GPIO_PRIMARY_MODULE_FUNCTION);
 
     eUSCI_SPI_MasterConfig spiMasterConfig =
     {
@@ -53,27 +46,36 @@ void HAL_LCD_SpiInit()
 		EUSCI_SPI_3PIN                                   			// SPI Mode
     };
 
-    SPI_initMaster(EUSCI_B0_BASE, &spiMasterConfig);
-    SPI_enableModule(EUSCI_B0_BASE);
-    Interrupt_enableInterrupt(LCD_INT_ENABLE);
-    SPI_clearInterruptFlag(EUSCI_B0_BASE,  EUSCI_B_SPI_RECEIVE_INTERRUPT);
+	MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(LCD_MOSI_PORT,
+                                                LCD_MOSI_PIN,
+                                                GPIO_PRIMARY_MODULE_FUNCTION);
+
+
+	MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(LCD_SCLK_PORT,
+    											LCD_SCLK_PIN,
+												GPIO_PRIMARY_MODULE_FUNCTION);
+
+    SPI_initMaster(EUSCI_A0_BASE, &spiMasterConfig);
+    SPI_enableModule(EUSCI_A0_BASE);
+    //Interrupt_enableInterrupt(LCD_INT_ENABLE);
+    //SPI_clearInterruptFlag(EUSCI_A0_BASE,  EUSCI_A_SPI_RECEIVE_INTERRUPT);
 }
 
 
 void writeData(uint8_t data)
 {
+    MAP_GPIO_setOutputLowOnPin(LCD_CS_PORT, LCD_CS_PIN);
     // Wait for the transmit buffer to become empty.
 	while (!(SPI_getInterruptStatus(LCD_EUSCI_MODULE,LCD_EUSCI_TRAN_INT)));
 	SPI_transmitData(LCD_EUSCI_MODULE, data);
-	_delay_cycles(39);
+	_delay_cycles(100);
+    MAP_GPIO_setOutputHighOnPin(LCD_CS_PORT, LCD_CS_PIN);
 }
 
 
 void writeCommand(uint8_t command)
 {
-    // Wait for any SPI transmission to complete before setting the LCD_DC signal.
-	while (!(SPI_getInterruptStatus(LCD_EUSCI_MODULE,LCD_EUSCI_TRAN_INT)));
-
+    MAP_GPIO_setOutputLowOnPin(LCD_CS_PORT, LCD_CS_PIN);
 	// Set the LCD_DC signal low, indicating that following writes are commands.
     GPIO_setOutputLowOnPin(LCD_DC_PORT, LCD_DC_PIN);
 
@@ -85,6 +87,7 @@ void writeCommand(uint8_t command)
 	_delay_cycles(39);
     // Set the LCD_SDC signal high, indicating that following writes are data.
     GPIO_setOutputHighOnPin(LCD_DC_PORT,LCD_DC_PIN);
+    MAP_GPIO_setOutputHighOnPin(LCD_CS_PORT, LCD_CS_PIN);
 }
 
 

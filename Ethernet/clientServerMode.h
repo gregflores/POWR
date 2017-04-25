@@ -18,7 +18,7 @@
 #include "msp432server.h"
 
 void runAsServer();
-void runAsClient(uint8_t, uint16_t, uint16_t);
+void runAsClient();
 // used for client example
 void waitForEvent();
 

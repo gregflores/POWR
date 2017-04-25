@@ -18,9 +18,10 @@
 #include "lcd.h"
 #include "lcd_layout.h"
 #include "HAL_MSP432_320x240_ILI9341.h"
+#include "typedefs.h"
 
 void lcd_pageInit(void);
-void lcd_primary(void);
+void lcd_primary();
 void drawTemp(uint16_t a, uint16_t b);
 
 #endif /* LCD_PAGES_H_ */

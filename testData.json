@@ -1,0 +1,59 @@
+[{
+	"deviceId" : "1",
+	"inputContact" : "ON",
+	"outputContact" : "ON",
+	"Temp A" : "100",
+	"Temp B" : "100",
+	"powerArray" : [
+		{
+			"Repeater" : "1",
+			"FWD" : "#000",
+			"RVS" : "#000"
+		},
+		{
+			"Repeater" : "2",
+			"FWD" : "#000",
+			"RVS" : "#000"
+		},
+		{
+			"Repeater" : "3",
+			"FWD" : "#000",
+			"RVS" : "#000"
+		},
+		{
+			"Repeater" : "4",
+			"FWD" : "#000",
+			"RVS" : "#000"
+		},
+		{
+			"Repeater" : "5",
+			"FWD" : "#000",
+			"RVS" : "#000"
+		},
+		{
+			"Repeater" : "6",
+			"FWD" : "#000",
+			"RVS" : "#000"
+		},
+		{
+			"Repeater" : "7",
+			"FWD" : "#000",
+			"RVS" : "#000"
+		},
+		{
+			"Repeater" : "8",
+			"FWD" : "#000",
+			"RVS" : "#000"
+		},
+		{
+			"Repeater" : "9",
+			"FWD" : "#000",
+			"RVS" : "#000"
+		},
+		{
+			"Repeater" : "10",
+			"FWD" : "#000",
+			"RVS" : "#000"
+		}
+	]
+}]

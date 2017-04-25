@@ -60,8 +60,8 @@ Port 7
 	Pin 3
 	Pin 4
 	Pin 5
-	Pin 6	CONTACT A
-	Pin 7	CONTACT B
+	Pin 6	CONTACT A OUTPUT
+	Pin 7	CONTACT B INPUT
 Port 8
 	Pin 0
 	Pin 1

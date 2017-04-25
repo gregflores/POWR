@@ -19,7 +19,7 @@ void startServer(u_char s, u_char port);
 void stopServer(u_char s);
 //
 void flushBuffer();
-void sendTempRequest(uint16_t a, uint16_t b);
+void sendRequest();
 //
 void addHTTP400ResponseToBuffer();
 void addHTTP200ResponseToBuffer();

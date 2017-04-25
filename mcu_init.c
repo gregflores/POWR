@@ -22,8 +22,12 @@ void msp432Init(void)
     MAP_CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_2);
     MAP_CS_initClockSignal(CS_HSMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_2);
     MAP_CS_initClockSignal(CS_ACLK, CS_REFOCLK_SELECT, CS_CLOCK_DIVIDER_2);
-    _delay_cycles(48000000);
+    //_delay_cycles(48000000);
 
+    MAP_Timer32_initModule(TIMER32_BASE, TIMER32_PRESCALER_1, TIMER32_32BIT,TIMER32_PERIODIC_MODE);
+    MAP_Timer32_setCount(TIMER32_BASE,48000000);
+    MAP_Timer32_enableInterrupt(TIMER32_BASE);
+    MAP_Timer32_startTimer(TIMER32_BASE, true);
 }
 
 void adcInit(void)
