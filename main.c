@@ -81,6 +81,8 @@ void main(void)
     onewire_t ow1, ow2;
     //state = 0;
     int8_t string[] = "";
+	float slope = 0.565189;
+	float offset = -0.140483;
 
     memset(resultsBuffer, 0x00, 20);
 
@@ -128,12 +130,12 @@ void main(void)
     		break;
     	case ADC_READ:
     		MAP_Interrupt_disableMaster();
-    		//y=0.5657x-0.1766
+    		//y=0.565189x-0.140483
 
 			normalizedResults[adc_flag] = (resultsBuffer[adc_flag] * 3.3) / 16384;
 			normalizedResults[adc_flag+10] = (resultsBuffer[adc_flag+10] * 3.3) / 16384;
-			wattsResults[adc_flag] = pow(10,(log10((normalizedResults[adc_flag]*4))+0.1766)/0.5657);
-			wattsResults[adc_flag + 10] = pow(10, (log10((normalizedResults[adc_flag + 10]*4))+0.1766)/0.5657);
+			wattsResults[adc_flag] = pow(10,(log10((normalizedResults[adc_flag]*4))-offset)/slope);
+			wattsResults[adc_flag + 10] = pow(10, (log10((normalizedResults[adc_flag + 10]*4))-offset)/slope);
 
 			sprintf((char*)string, "%3dW", wattsResults[adc_flag]); //%.2f normalizedResults
 			drawString(68, (34+((adc_flag)*16)), FONT_MD_BKG, string);
@@ -141,10 +143,11 @@ void main(void)
 			sprintf((char*)string, " %3dW", wattsResults[adc_flag+10]);
 			drawString(148, (34+((adc_flag)*16)), FONT_MD_BKG, string);
 
-			setColor(COLOR_16_GREEN);
+			if(wattsResults[adc_flag] > 50) setColor(COLOR_16_GREEN);
+			else setColor(COLOR_16_RED);
+
 			fillCircle(210, 39+((adc_flag)*16), 4);
 			setColor(COLOR_16_WHITE);
-
 			state = DEFAULT;
 		    MAP_Interrupt_enableMaster();
     		break;
@@ -203,7 +206,23 @@ void ADC14_IRQHandler(void)
     MAP_Interrupt_enableMaster();
 }
 
+
+
 /* GPIO ISR */
+
+//void PORT1_IRQHandler(void)
+//{
+//	MAP_Interrupt_disableMaster();
+//    uint32_t status;
+//
+//    status = MAP_GPIO_getEnabledInterruptStatus(GPIO_PORT_P1);
+//    MAP_GPIO_clearInterruptFlag(GPIO_PORT_P1, status);
+//
+//    if(status & GPIO_PIN5) MAP_GPIO_setOutputHighOnPin(LCD_LITE_PORT, LCD_LITE_PIN);;
+//
+//    MAP_Interrupt_enableMaster();
+//}
+
 void PORT2_IRQHandler(void)
 {
 	MAP_Interrupt_disableMaster();
@@ -245,9 +264,11 @@ void T32_INT1_IRQHandler(void)
 	MAP_Interrupt_disableMaster();
 	static uint16_t temp_count = 0;
 	static uint16_t client_count = 0;
+	static uint16_t backlite_count = 0;
 	MAP_Timer32_clearInterruptFlag(TIMER32_BASE);
 	temp_count++;
 	client_count++;
+	backlite_count++;
 	if (temp_count == 60)
 	{
 		state = TEMP_READ;
@@ -258,6 +279,12 @@ void T32_INT1_IRQHandler(void)
 		state = SEND_DATA;
 		client_count = 0;
 	}
+//	if (backlite_count == 17)
+//	{
+//	    MAP_GPIO_setOutputLowOnPin(LCD_LITE_PORT,
+//	                           LCD_LITE_PIN);
+//		backlite_count = 0;
+//	}
 	else MAP_Timer32_setCount(TIMER32_BASE,48000000);
 	MAP_Interrupt_enableMaster();
 }

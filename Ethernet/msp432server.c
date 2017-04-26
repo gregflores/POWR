@@ -242,8 +242,8 @@ void sendRequest() {
 	addStringToBuffer((const u_char*)string);
 	addStringToBuffer("\"");
 
-	if(inputStatus) addStringToBuffer(",\"inputContact\":\"OFF\",\"outputContact\":\"ON\",");
-	else addStringToBuffer(",\"inputContact\":\"ON\",\"outputContact\":\"ON\",");
+	if(inputStatus) addStringToBuffer(",\"inputContact\":\"OFF\",\"outputContact\":\"OFF\",");
+	else addStringToBuffer(",\"inputContact\":\"ON\",\"outputContact\":\"OFF\",");
 
 	addStringToBuffer("\"Temp A\":\"");
 	sprintf((char*)string, "%3u", a);
