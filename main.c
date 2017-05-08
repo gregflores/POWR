@@ -38,10 +38,19 @@
 #define TEMP_READ   1
 #define ADC_READ    2
 #define SEND_DATA   3
+#define CONFIG		4
 #define DEFAULT     0
 
 #define INPUT_ON    0
 #define INPUT_OFF   1
+
+#define SECOND 		48000000
+#define TEMP_COUNT	60
+#define NET_COUNT 	16
+#define INIT_FWD_THRESHOLD	50
+#define INIT_RVS_THRESHOLD	10
+#define INIT_CALIBRATION_SLOPE 0.565189
+#define INIT_CALIBRATION_BASE -0.140483
 
 /* ADC results buffer */
 static uint16_t resultsBuffer[20];
@@ -52,7 +61,8 @@ uint16_t wattsResults[20];
 uint8_t inputStatus = 1;
 
 /* state flag  */
-static uint8_t state = DEFAULT;
+//static uint8_t state = DEFAULT;
+static uint8_t state = CONFIG;
 
 /* which adc to check */
 static uint8_t adc_flag;
@@ -67,7 +77,7 @@ const u_char subnetMask[4] = { 255, 255, 255, 0 }; // subnet mask
 
 /* network configuration for client mode */
 const u_char destinationIP[4] = { 192, 168, 1, 2 }; // destination IP
-const u_int destinationPort = 23; // destination port
+const u_int destinationPort = 8081; // destination port
 
 void main(void)
 {
@@ -75,14 +85,25 @@ void main(void)
     W5500_SpiInit();
     keyInputInit();
     adcInit();
+    _delay_cycles(SECOND);
+
     lcd_pageInit();
     lcd_primary();
 
     onewire_t ow1, ow2;
     //state = 0;
+
     int8_t string[] = "";
-	float slope = 0.565189;
-	float offset = -0.140483;
+    char *string1;
+    char *ipString;
+
+    u_char assignIP[4] = {192, 168, 1, 10};
+
+	float slope = INIT_CALIBRATION_SLOPE;
+	float offset = INIT_CALIBRATION_BASE;
+
+	uint8_t fwd_threshold = INIT_FWD_THRESHOLD;
+	uint8_t rvs_threshold = INIT_RVS_THRESHOLD;
 
     memset(resultsBuffer, 0x00, 20);
 
@@ -106,27 +127,25 @@ void main(void)
     MAP_Interrupt_enableInterrupt(INT_PORT3);
     MAP_Interrupt_enableInterrupt(INT_PORT2);
 
-	drawString(IP_VAL_X, IP_VAL_Y, FONT_MD, "192.168.1.10");
+
 
     while(1)
     {
     	switch(state)
     	{
     	case TEMP_READ:
-    		MAP_Interrupt_disableMaster();
-        	printf("\nTemp A:");
+            state = DEFAULT;
+        	//printf("\nTemp A:");
             a = DS_tempRead(&ow1);
 
-            printf("\nTemp B:");
+            //printf("\nTemp B:");
             b = DS_tempRead(&ow2);
 
             drawTemp(a, b);
 
-            state = DEFAULT;
-            MAP_Timer32_setCount(TIMER32_BASE,48000000);
+            MAP_Timer32_setCount(TIMER32_BASE, SECOND);
             MAP_Timer32_enableInterrupt(TIMER32_BASE);
             MAP_Timer32_startTimer(TIMER32_BASE, true);
-            MAP_Interrupt_enableMaster();
     		break;
     	case ADC_READ:
     		MAP_Interrupt_disableMaster();
@@ -143,7 +162,7 @@ void main(void)
 			sprintf((char*)string, " %3dW", wattsResults[adc_flag+10]);
 			drawString(148, (34+((adc_flag)*16)), FONT_MD_BKG, string);
 
-			if(wattsResults[adc_flag] > 50) setColor(COLOR_16_GREEN);
+			if(wattsResults[adc_flag] < fwd_threshold) setColor(COLOR_16_GREEN);
 			else setColor(COLOR_16_RED);
 
 			fillCircle(210, 39+((adc_flag)*16), 4);
@@ -156,9 +175,27 @@ void main(void)
     		runAsClient();
 
     		state = DEFAULT;
-            MAP_Timer32_setCount(TIMER32_BASE,48000000);
+            MAP_Timer32_setCount(TIMER32_BASE, SECOND);
             MAP_Timer32_enableInterrupt(TIMER32_BASE);
             MAP_Timer32_startTimer(TIMER32_BASE, true);
+            break;
+    	case CONFIG:
+
+//    	    sprintf(string1, "%u", assignIP[0]);
+//    	    strcat(ipString, string1);
+//    	    strcat(ipString, ".");
+//    	    sprintf(string1, "%u", assignIP[1]);
+//    	    strcat(ipString, string1);
+//    	    strcat(ipString, ".");
+//    	    sprintf(string1, "%u", assignIP[2]);
+//    	    strcat(ipString, string1);
+//    	    strcat(ipString, ".");
+//    	    sprintf(string1, "%u", assignIP[3]);
+//    	    strcat(ipString, string1);
+//    	    printf("%s\n", ipString);
+    	    drawString(IP_VAL_X, IP_VAL_Y, FONT_MD, "192.168.1.10");
+    	    state = DEFAULT;
+    		break;
     	default:
     		if(MAP_GPIO_getInputPinValue(IN_CONTACT_PORT, IN_CONTACT_PIN) != inputStatus)
     		{
@@ -210,19 +247,6 @@ void ADC14_IRQHandler(void)
 
 /* GPIO ISR */
 
-//void PORT1_IRQHandler(void)
-//{
-//	MAP_Interrupt_disableMaster();
-//    uint32_t status;
-//
-//    status = MAP_GPIO_getEnabledInterruptStatus(GPIO_PORT_P1);
-//    MAP_GPIO_clearInterruptFlag(GPIO_PORT_P1, status);
-//
-//    if(status & GPIO_PIN5) MAP_GPIO_setOutputHighOnPin(LCD_LITE_PORT, LCD_LITE_PIN);;
-//
-//    MAP_Interrupt_enableMaster();
-//}
-
 void PORT2_IRQHandler(void)
 {
 	MAP_Interrupt_disableMaster();
@@ -264,28 +288,21 @@ void T32_INT1_IRQHandler(void)
 	MAP_Interrupt_disableMaster();
 	static uint16_t temp_count = 0;
 	static uint16_t client_count = 0;
-	static uint16_t backlite_count = 0;
 	MAP_Timer32_clearInterruptFlag(TIMER32_BASE);
 	temp_count++;
 	client_count++;
-	backlite_count++;
-	if (temp_count == 60)
+
+	if (temp_count == TEMP_COUNT)
 	{
 		state = TEMP_READ;
 		temp_count = 0;
 	}
-	if (client_count == 16)
+	if (client_count == NET_COUNT)
 	{
 		state = SEND_DATA;
 		client_count = 0;
 	}
-//	if (backlite_count == 17)
-//	{
-//	    MAP_GPIO_setOutputLowOnPin(LCD_LITE_PORT,
-//	                           LCD_LITE_PIN);
-//		backlite_count = 0;
-//	}
-	else MAP_Timer32_setCount(TIMER32_BASE,48000000);
+	else MAP_Timer32_setCount(TIMER32_BASE, SECOND);
 	MAP_Interrupt_enableMaster();
 }
 
